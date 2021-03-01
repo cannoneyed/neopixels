@@ -1,0 +1,16 @@
+{
+  "name": "neopixels",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "midi": "^1.0.0",
+    "midi-node": "^0.1.13",
+    "node-fadecandy": "^2.0.5"
+  }
+}
