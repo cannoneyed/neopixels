@@ -6,11 +6,13 @@ module.exports.Lerps = class Lerps {
   }
 
   createLerp(event, startAbsoluteMs) {
-    const { address, from, to, duration } = event;
+    const { address, steps } = event;
+    const duration = steps.reduce((sum, step) => {
+      return sum + step.duration;
+    }, 0);
 
     this.lerps[address] = {
-      from,
-      to,
+      steps,
       startAbsoluteMs,
       duration,
     };
@@ -18,16 +20,32 @@ module.exports.Lerps = class Lerps {
 
   process(absoluteMs) {
     Object.keys(this.lerps).forEach((address) => {
-      const { from, to, startAbsoluteMs, duration } = this.lerps[address];
-      const percent = (absoluteMs - startAbsoluteMs) / duration;
-
+      const { steps, startAbsoluteMs, duration } = this.lerps[address];
+      const elapsedMs = absoluteMs - startAbsoluteMs;
       let value;
-      if (percent >= 1) {
+
+      let step;
+      let startStepMs = 0;
+      let endStepMs = 0;
+
+      for (let i = 0; i < steps.length; i++) {
+        step = steps[i];
+        endStepMs = endStepMs + step.duration;
+
+        if (elapsedMs >= startStepMs && elapsedMs < endStepMs) {
+          const elapsedStepMs = elapsedMs - startStepMs;
+          const percent = elapsedStepMs / step.duration;
+          value = this.applyLerp(step.from, step.to, percent);
+          break;
+        }
+
+        startStepMs += step.duration;
+      }
+
+      if (elapsedMs >= duration) {
         // Zero out in case the lerp is finished.
-        value = this.zeroOutLerp(from);
+        value = this.zeroOutLerp(step.from);
         delete this.lerps[address];
-      } else {
-        value = this.applyLerp(from, to, percent);
       }
 
       this.lerpCallbacks.forEach((callback) => {
@@ -37,34 +55,13 @@ module.exports.Lerps = class Lerps {
   }
 
   applyLerp(from, to, percent) {
-    if (from instanceof Array) {
-      return percent > 1
-        ? from.map(() => 0)
-        : from.map((x, i) => x - (x - to[i]) * percent);
-    } else if (typeof from === "object") {
-      const results = {};
-      for (const key in from) {
-        results[key] =
-          percent > 1 ? 0 : from[key] - (from[key] - to[key]) * percent;
-      }
-      return results;
-    } else if (typeof from === "number" && typeof to === "number") {
-      return from - (from - to) * percent;
-    }
+    return percent > 1
+      ? from.map(() => 0)
+      : from.map((x, i) => x - (x - to[i]) * percent);
   }
 
   zeroOutLerp(from) {
-    if (from instanceof Array) {
-      return from.map(() => 0);
-    } else if (typeof from === "object") {
-      const results = {};
-      for (const key in from) {
-        results[key] = 0;
-      }
-      return results;
-    } else if (typeof from === "number") {
-      return 0;
-    }
+    return from.map(() => 0);
   }
 
   lerpCallbacks = new Set();

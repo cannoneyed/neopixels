@@ -75,7 +75,7 @@ Object.keys(config.fades).forEach((name) => {
 function getNoteFade(velocity) {
   const fadeId = triggerMap[velocity];
   const fade = fadesMap[fadeId];
-  return fade;
+  return fade instanceof Array ? fade : [fade];
 }
 
 function processNote(pitch, velocity) {
@@ -89,7 +89,7 @@ function processNote(pitch, velocity) {
     console.log(`LED #${pitch} is not addressable`);
   }
 
-  lerps.trigger({ address, ...fade });
+  lerps.trigger({ address, steps: fade });
 }
 
 function clearAllPixels() {
