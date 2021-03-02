@@ -1,0 +1,17 @@
+{
+  "notes": [
+    {
+      "channel": 1,
+      "note": 0,
+      "led": 0,
+      "fade": "redBlue"
+    }
+  ],
+  "fades": {
+    "redBlue": {
+      "from": [255, 0, 0],
+      "to": [0, 0, 255],
+      "time": 200
+    }
+  }
+}

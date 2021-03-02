@@ -1,6 +1,7 @@
 const FadeCandy = require("./node-fadecandy/src/FadeCandy");
 const midi = require("midi");
 const midiParser = require("midi-node");
+const { Lerps } = require("./lerps");
 
 const fc = new FadeCandy();
 const midiIn = new midi.Input();
@@ -17,6 +18,9 @@ fc.on(FadeCandy.events.READY, function () {
 fc.on(FadeCandy.events.COLOR_LUT_READY, function () {
   isReady = true;
   console.log("READY!");
+  setInterval(() => {
+    processPixels();
+  }, 5);
 });
 
 process.on("SIGINT", () => {
@@ -24,8 +28,23 @@ process.on("SIGINT", () => {
   process.exit(0);
 });
 
-let pixel = 0;
-let N_PIXELS = 20;
+let absoluteMs = Date.now();
+const pixelData = new Uint8Array(20 * 3);
+const lerps = new Lerps();
+lerps.onProcess((address, value) => {
+  const [r, g, b] = value;
+  const offset = address * 3;
+  pixelData[offset] = r;
+  pixelData[offset + 1] = g;
+  pixelData[offset + 2] = b;
+});
+
+function processPixels() {
+  absoluteMs = Date.now();
+  lerps.process(absoluteMs);
+
+  fc.send(pixelData);
+}
 
 midiIn.on("message", (deltaTime, message) => {
   if (!isReady) return;
@@ -36,22 +55,21 @@ midiIn.on("message", (deltaTime, message) => {
   const command = midiMessage.getCommand();
   if (command === "NOTE_ON" || command === "NOTE_OFF") {
     if (command === "NOTE_ON") {
-      setPixel(pixel, [255, 0, 0]);
-    } else if (command === "NOTE_OFF") {
-      setPixel(pixel, [0, 0, 255]);
-      pixel = pixel === N_PIXELS - 1 ? 0 : pixel + 1;
+      const [pitch, velocity] = midiMessage.getData();
+      processNote(pitch, velocity);
     }
   }
 });
 
-function setPixel(pixel, color) {
-  let data = new Uint8Array(20 * 3);
+function getNoteFade(pitch) {
+  return { from: [255, 0, 0], to: [0, 0, 255], duration: 1000 };
+}
 
-  const offset = pixel * 3;
-  data[offset] = color[0];
-  data[offset + 1] = color[1];
-  data[offset + 2] = color[2];
-  fc.send(data);
+function processNote(pitch, velocity) {
+  const fade = getNoteFade(pitch);
+  const address = Math.min(pitch, 19);
+
+  lerps.trigger({ address, ...fade });
 }
 
 function clearAllPixels() {
