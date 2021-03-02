@@ -2,6 +2,7 @@ const FadeCandy = require("./node-fadecandy/src/FadeCandy");
 const midi = require("midi");
 const midiParser = require("midi-node");
 const { Lerps } = require("./lerps");
+const config = require("./config.json");
 
 const fc = new FadeCandy();
 const midiIn = new midi.Input();
@@ -61,13 +62,32 @@ midiIn.on("message", (deltaTime, message) => {
   }
 });
 
-function getNoteFade(pitch) {
-  return { from: [255, 0, 0], to: [0, 0, 255], duration: 1000 };
+const fadesMap = {};
+const triggerMap = {};
+
+config.triggers.forEach((trigger) => {
+  triggerMap[trigger.velocity] = trigger.fade;
+});
+Object.keys(config.fades).forEach((name) => {
+  fadesMap[name] = config.fades[name];
+});
+
+function getNoteFade(velocity) {
+  const fadeId = triggerMap[velocity];
+  const fade = fadesMap[fadeId];
+  return fade;
 }
 
 function processNote(pitch, velocity) {
-  const fade = getNoteFade(pitch);
-  const address = Math.min(pitch, 19);
+  const fade = getNoteFade(velocity);
+  const address = pitch;
+
+  if (!fade) {
+    console.log(`No fade mapped for velocity ${velocity}`);
+    return;
+  } else if (address >= 20) {
+    console.log(`LED #${pitch} is not addressable`);
+  }
 
   lerps.trigger({ address, ...fade });
 }

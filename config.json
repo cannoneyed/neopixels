@@ -1,17 +1,15 @@
 {
-  "notes": [
+  "triggers": [
     {
-      "channel": 1,
-      "note": 0,
-      "led": 0,
-      "fade": "redBlue"
+      "velocity": 100,
+      "fade": "red_blue_out"
     }
   ],
   "fades": {
-    "redBlue": {
+    "red_blue_out": {
       "from": [255, 0, 0],
       "to": [0, 0, 255],
-      "time": 200
+      "duration": 50
     }
   }
 }
