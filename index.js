@@ -7,6 +7,8 @@ const config = require("./config.json");
 const fc = new FadeCandy();
 const midiIn = new midi.Input();
 
+console.log("Waiting to connect to LED Driver");
+
 midiIn.openVirtualPort("LED Driver");
 
 let isReady = false;
@@ -94,6 +96,8 @@ function processNote(pitch, velocity) {
     console.log(`LED #${pitch} is not addressable`);
   }
 
+  const fadeId = triggerMap[velocity];
+  console.log(`MIDI ${pitch} ${velocity} ➡ ${fadeId}`);
   lerps.trigger({ address, steps: fade });
 }
 
