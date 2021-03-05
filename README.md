@@ -6,18 +6,18 @@ Control Neopixels via MIDI with a really simple color scheme!
 
 First, you're going to need to install Node.js - Head to [https://nodejs.org/en/](https://nodejs.org/en/) and download and install the latest version (should be 14.16.0 LTS).
 
-Once Node.js is installed, you're going to need to download this repo. We're gonna skip git and just use the basic released source code, which you can find in the [releases page](https://github.com/cannoneyed/neopixels/releases/tag/0.1). Download the [source code](https://github.com/cannoneyed/neopixels/archive/0.1.zip), unzip it, and move it somewhere easy to access.
+Once Node.js is installed, you're going to need to download this repo. We're gonna skip git and just use the basic released source code, which you can download [here](https://github.com/cannoneyed/neopixels/archive/main.zip), unzip it, and move it somewhere easy to access.
 
 Now, open up a terminal (type "terminal" into spotlight). Once your terminal is open, you'll need to navigate to the folder that you just unzipped. The easiest way to do this is by putting the unzipped folder on your desktop, and navigating to it like so:
 
 ```bash
-cd ~/Desktop/neopixels-0.1
+cd ~/Desktop/neopixels-main
 ```
 
 Once you're in the neopixels directory, we just need to install the dependencies in order to run the app.
 
 ```bash
-# from ~/Desktop/neopixels-0.1
+# from ~/Desktop/neopixels-main
 npm i
 ```
 
