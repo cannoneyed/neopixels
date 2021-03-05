@@ -2,30 +2,29 @@
   "triggers": [
     {
       "velocity": 100,
-      "fade": "red_blue_out"
+      "fade": "red_blue_black"
+    },
+    {
+      "velocity": 101,
+      "fade": "red_blue"
     }
   ],
   "fades": {
     "red_blue": {
       "from": [255, 0, 0],
       "to": [0, 0, 255],
-      "duration": 200
+      "duration": 500
     },
-    "red_blue_out": [
+    "red_blue_black": [
       {
         "from": [255, 0, 0],
         "to": [0, 0, 255],
-        "duration": 200
+        "duration": 500
       },
       {
         "from": [0, 0, 255],
-        "to": [0, 255, 0],
-        "duration": 200
-      },
-      {
-        "from": [0, 255, 0],
         "to": [0, 0, 0],
-        "duration": 200
+        "duration": 500
       }
     ]
   }

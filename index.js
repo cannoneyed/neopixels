@@ -10,6 +10,15 @@ const midiIn = new midi.Input();
 midiIn.openVirtualPort("LED Driver");
 
 let isReady = false;
+const fadesMap = {};
+const triggerMap = {};
+
+config.triggers.forEach((trigger) => {
+  triggerMap[trigger.velocity] = trigger.fade;
+});
+Object.keys(config.fades).forEach((name) => {
+  fadesMap[name] = config.fades[name];
+});
 
 fc.on(FadeCandy.events.READY, function () {
   // create default color look-up table
@@ -18,7 +27,13 @@ fc.on(FadeCandy.events.READY, function () {
 
 fc.on(FadeCandy.events.COLOR_LUT_READY, function () {
   isReady = true;
-  console.log("READY!");
+  console.log("🌵 LED Driver Ready");
+  console.log('🌵 Output MIDI Notes to "LED Driver" in Ableton/DAW');
+  console.log("🌵 MIDI Notes 1-20 mapped to LEDs 1-20");
+  console.log("🌵 Note Velocities mapped (from config.json):");
+  Object.keys(triggerMap).forEach((velocity) => {
+    console.log(`🌵 ${velocity}\t${triggerMap[velocity]}`);
+  });
   setInterval(() => {
     processPixels();
   }, 5);
@@ -62,20 +77,10 @@ midiIn.on("message", (deltaTime, message) => {
   }
 });
 
-const fadesMap = {};
-const triggerMap = {};
-
-config.triggers.forEach((trigger) => {
-  triggerMap[trigger.velocity] = trigger.fade;
-});
-Object.keys(config.fades).forEach((name) => {
-  fadesMap[name] = config.fades[name];
-});
-
 function getNoteFade(velocity) {
   const fadeId = triggerMap[velocity];
   const fade = fadesMap[fadeId];
-  return fade instanceof Array ? fade : [fade];
+  return fade ? (fade instanceof Array ? fade : [fade]) : null;
 }
 
 function processNote(pitch, velocity) {
